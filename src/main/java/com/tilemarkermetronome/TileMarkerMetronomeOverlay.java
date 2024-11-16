@@ -8,8 +8,6 @@ import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Polygon;
 import java.awt.Stroke;
-import java.util.Collection;
-import javax.annotation.Nullable;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.Client;
 import net.runelite.api.Perspective;
@@ -26,13 +24,11 @@ public class TileMarkerMetronomeOverlay extends Overlay {
     private static final int MAX_DRAW_DISTANCE = 32;
 
     private final Client client;
-    private final TileMarkerMetronomeConfig config;
     private final TileMarkerMetronomePlugin plugin;
 
     @Inject
-    private TileMarkerMetronomeOverlay(Client client, TileMarkerMetronomeConfig config, TileMarkerMetronomePlugin plugin) {
+    private TileMarkerMetronomeOverlay(Client client, TileMarkerMetronomePlugin plugin) {
         this.client = client;
-        this.config = config;
         this.plugin = plugin;
         setPosition(OverlayPosition.DYNAMIC);
         setPriority(PRIORITY_LOW);
@@ -41,48 +37,57 @@ public class TileMarkerMetronomeOverlay extends Overlay {
 
     @Override
     public Dimension render(Graphics2D graphics) {
-        final Collection<TileMarkerMetronomePoint> points = plugin.getVisiblePoints();
-        log.info("Got {} visible points", points.size());
-        if (points.isEmpty()) {
-            return null;
-        }
-
-        //TODO use borderWidth from group
-        Stroke stroke = new BasicStroke((float) config.borderWidth());
-        points.stream()
-                .filter(this::isOnCurrentPlane)
-                //TODO use all colors and renderType
-                .forEach(point -> drawTile(graphics, point.getWorldPoint(), config.color1(), point.getLabel(), stroke));
+        plugin.getGroups()
+                .stream()
+                .filter(TileMarkerMetronomeGroup::isVisible)
+                .forEach(group -> group.getTileMarkerMetronomePoints()
+                        .forEach(point -> drawTile(graphics, point, group)));
         return null;
     }
 
-    private void drawTile(Graphics2D graphics, WorldPoint point, Color color, @Nullable String label, Stroke borderStroke) {
+    private void drawTile(Graphics2D graphics, TileMarkerMetronomePoint point, TileMarkerMetronomeGroup group) {
+        WorldPoint.toLocalInstance(client, point.getWorldPoint())
+                .stream()
+                .filter(this::isOnCurrentPlane)
+                .forEach(wp -> drawTile(graphics, point, group, wp));
+    }
+
+    private void drawTile(Graphics2D graphics, TileMarkerMetronomePoint point, TileMarkerMetronomeGroup group, WorldPoint worldPoint) {
         WorldPoint playerLocation = client.getLocalPlayer().getWorldLocation();
 
-        if (point.distanceTo(playerLocation) >= MAX_DRAW_DISTANCE) {
+        if (worldPoint.distanceTo(playerLocation) >= MAX_DRAW_DISTANCE) {
             return;
         }
 
-        LocalPoint lp = LocalPoint.fromWorld(client, point);
-        if (lp == null) {
+        LocalPoint localPoint = LocalPoint.fromWorld(client, worldPoint);
+        if (localPoint == null) {
             return;
         }
 
-        Polygon poly = Perspective.getCanvasTilePoly(client, lp);
+        Polygon poly = Perspective.getCanvasTilePoly(client, localPoint);
         if (poly != null) {
-            //TODO use fillOpacity from group
-            OverlayUtil.renderPolygon(graphics, poly, color, new Color(0, 0, 0, config.fillOpacity()), borderStroke);
-        }
+            Stroke stroke = new BasicStroke((float) group.getBorderWidth());
+            Color currentColor = group.getCurrentColor(point);
+            Color currentFillColor = getFillColor(currentColor, group.getFillOpacity());
+            OverlayUtil.renderPolygon(graphics, poly, currentColor, currentFillColor, stroke);
 
-        if (!Strings.isNullOrEmpty(label)) {
-            Point canvasTextLocation = Perspective.getCanvasTextLocation(client, graphics, lp, label, 0);
-            if (canvasTextLocation != null) {
-                OverlayUtil.renderTextLocation(graphics, canvasTextLocation, label, color);
+            String label = point.getLabel();
+            if (!Strings.isNullOrEmpty(label)) {
+                Point canvasTextLocation = Perspective.getCanvasTextLocation(client, graphics, localPoint, label, 0);
+                if (canvasTextLocation != null) {
+                    OverlayUtil.renderTextLocation(graphics, canvasTextLocation, label, currentColor);
+                }
             }
         }
     }
 
-    private boolean isOnCurrentPlane(TileMarkerMetronomePoint point) {
-        return point.getWorldPoint().getPlane() == client.getPlane();
+    private Color getFillColor(Color color, int fillOpacity) {
+        return new Color(color.getRed(),
+                color.getGreen(),
+                color.getBlue(), fillOpacity);
+    }
+
+    private boolean isOnCurrentPlane(WorldPoint worldPoint) {
+        return worldPoint.getPlane() == client.getPlane();
     }
 }

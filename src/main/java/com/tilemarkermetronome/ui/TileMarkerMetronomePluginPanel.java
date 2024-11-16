@@ -1,23 +1,22 @@
 package com.tilemarkermetronome.ui;
 
 import com.tilemarkermetronome.TileMarkerMetronomePlugin;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.image.BufferedImage;
+import net.runelite.client.ui.ColorScheme;
+import net.runelite.client.ui.PluginPanel;
+import net.runelite.client.ui.components.PluginErrorPanel;
+import net.runelite.client.util.ImageUtil;
+
 import javax.swing.Box;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
-import net.runelite.client.ui.ColorScheme;
-import net.runelite.client.ui.PluginPanel;
-import net.runelite.client.ui.components.PluginErrorPanel;
-import net.runelite.client.util.ImageUtil;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.image.BufferedImage;
 
 import static com.tilemarkermetronome.ui.util.ComponentUtil.configureMouseListener;
 
@@ -67,7 +66,7 @@ public class TileMarkerMetronomePluginPanel extends PluginPanel {
 
         createGroup.setToolTipText("Create tile group");
         configureMouseListener(createGroup,
-                ignored -> createGroup(),
+                ignored -> plugin.addGroup(),
                 ignored -> createGroup.setIcon(ADD_HOVER_ICON),
                 ignored -> createGroup.setIcon(ADD_ICON)
         );
@@ -105,10 +104,5 @@ public class TileMarkerMetronomePluginPanel extends PluginPanel {
 
         repaint();
         revalidate();
-    }
-
-    public void createGroup() {
-        plugin.addGroup();
-        rebuild();
     }
 }

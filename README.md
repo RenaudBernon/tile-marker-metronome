@@ -1,2 +1,3 @@
 # Tile Marker Metronome
-Mark tiles and use them as a visual metronome
+
+Mark groups of tiles and use them as a visual metronome.

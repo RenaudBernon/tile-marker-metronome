@@ -1,11 +1,16 @@
 package com.tilemarkermetronome;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import lombok.Getter;
-import lombok.Setter;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.IntStream;
+
+import static com.tilemarkermetronome.TileMarkerMetronomeGroup.AnimationType.DISABLED;
 
 @Getter
 @Setter
@@ -14,25 +19,73 @@ public class TileMarkerMetronomeGroup {
     private final UUID id = UUID.randomUUID();
     private final List<TileMarkerMetronomePoint> tileMarkerMetronomePoints = new ArrayList<>();
 
-    private List<Color> colors;
     private String label;
-    private String renderType;
-    private boolean isEnabled;
-    private boolean isCurrent;
+    private transient int currentColor;
+    private List<Color> colors;
+    private AnimationType animationType;
+    private int fillOpacity;
+    private double borderWidth;
+    private int tickCounter;
+    private boolean isVisible;
+    private boolean isActive;
+    private transient int currentTick;
 
-    public TileMarkerMetronomeGroup(String label, List<Color> colors, String renderType, boolean isEnabled, boolean isCurrent) {
+    public TileMarkerMetronomeGroup(String label, TileMarkerMetronomeConfig config, boolean isVisible, boolean isActive) {
         this.label = label;
-        this.colors = new ArrayList<>(colors);
-        this.renderType = renderType;
-        this.isEnabled = isEnabled;
-        this.isCurrent = isCurrent;
+        this.colors = new ArrayList<>(List.of(config.color1(), config.color2()));
+        this.fillOpacity = config.fillOpacity();
+        this.borderWidth = config.borderWidth();
+        this.tickCounter = config.tickCounter();
+        this.animationType = config.animationType();
+        this.isVisible = isVisible;
+        this.isActive = isActive;
     }
 
-    public void addTileMarkerMetronomePoint(TileMarkerMetronomePoint tileMarkerMetronomePoint) {
-        tileMarkerMetronomePoints.add(tileMarkerMetronomePoint);
+    public void setActive() {
+        this.isActive = true;
     }
 
-    public void setColors(List<Color> colors) {
-        this.colors = new ArrayList<>(colors);
+    public void setInactive() {
+        this.isActive = false;
+    }
+
+    public void tick() {
+        if (animationType == DISABLED) {
+            return;
+        }
+
+        if (currentTick % tickCounter == 0) {
+            currentColor++;
+        }
+        currentTick++;
+
+        if (currentTick > tickCounter) {
+            currentTick = 1;
+        }
+        if (currentColor >= colors.size()) {
+            currentColor = 0;
+        }
+    }
+
+    public Color getCurrentColor(TileMarkerMetronomePoint point) {
+        if (animationType == AnimationType.TRAIN) {
+            int pointIndex = tileMarkerMetronomePoints.indexOf(point);
+            AtomicInteger currentTileColor = new AtomicInteger(currentColor);
+            IntStream.range(0, pointIndex)
+                    .forEach(index -> {
+                        currentTileColor.getAndIncrement();
+                        if (currentTileColor.get() >= colors.size()) {
+                            currentTileColor.set(0);
+                        }
+                    });
+            return colors.get(currentTileColor.get());
+        }
+        return colors.get(currentColor);
+    }
+
+    public enum AnimationType {
+        DISABLED,
+        SYNCED,
+        TRAIN
     }
 }

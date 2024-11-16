@@ -1,7 +1,8 @@
 package com.tilemarkermetronome;
 
 import java.awt.Color;
-import java.util.List;
+
+import com.tilemarkermetronome.TileMarkerMetronomeGroup.AnimationType;
 import net.runelite.client.config.Alpha;
 import net.runelite.client.config.Config;
 import net.runelite.client.config.ConfigGroup;
@@ -10,6 +11,7 @@ import net.runelite.client.config.ConfigSection;
 import net.runelite.client.config.Range;
 
 import static com.tilemarkermetronome.TileMarkerMetronomeConfig.TILE_MARKER_METRONOME_CONFIG_GROUP;
+import static com.tilemarkermetronome.TileMarkerMetronomeGroup.AnimationType.SYNCED;
 import static java.awt.Color.CYAN;
 import static java.awt.Color.WHITE;
 
@@ -27,8 +29,8 @@ public interface TileMarkerMetronomeConfig extends Config {
 
     @Alpha
     @ConfigItem(
-            keyName = "defaultColor1",
-            name = "default color 1",
+            keyName = "color1",
+            name = "Color 1",
             description = "The first default colors for marked tiles",
             section = defaultConfigSection,
             position = 1
@@ -39,8 +41,8 @@ public interface TileMarkerMetronomeConfig extends Config {
 
     @Alpha
     @ConfigItem(
-            keyName = "defaultColor2",
-            name = "default color 2",
+            keyName = "color2",
+            name = "Color 2",
             description = "The second default colors for marked tiles",
             section = defaultConfigSection,
             position = 2
@@ -50,11 +52,33 @@ public interface TileMarkerMetronomeConfig extends Config {
     }
 
     @ConfigItem(
+            keyName = "animationType",
+            name = "Animation type",
+            description = "Changes how the colors are animated in a group",
+            section = defaultConfigSection,
+            position = 4
+    )
+    default AnimationType animationType() {
+        return SYNCED;
+    }
+
+    @ConfigItem(
+            keyName = "tickCounter",
+            name = "Tick Counter",
+            description = "Amount of ticks after which tile color should change",
+            section = defaultConfigSection,
+            position = 5
+    )
+    default int tickCounter() {
+        return 1;
+    }
+
+    @ConfigItem(
             keyName = "fillOpacity",
             name = "Fill opacity",
             description = "Opacity of the tile fill color",
             section = defaultConfigSection,
-            position = 3
+            position = 6
     )
     @Range(max = 255)
     default int fillOpacity() {
@@ -66,7 +90,7 @@ public interface TileMarkerMetronomeConfig extends Config {
             name = "Border width",
             description = "Width of the marked tile border",
             section = defaultConfigSection,
-            position = 4
+            position = 7
     )
     default double borderWidth() {
         return 2;
