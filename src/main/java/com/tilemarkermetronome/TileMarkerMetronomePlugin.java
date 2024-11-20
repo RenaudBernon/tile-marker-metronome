@@ -102,6 +102,7 @@ public class TileMarkerMetronomePlugin extends Plugin {
     public void shutDown() {
         overlayManager.remove(overlay);
         tileMarkerMetronomeGroups.clear();
+        clientToolbar.removeNavigation(navigationButton);
     }
 
     @Subscribe
@@ -124,7 +125,6 @@ public class TileMarkerMetronomePlugin extends Plugin {
         if (gameStateChanged.getGameState() != GameState.LOGGED_IN) {
             return;
         }
-        loadGroups();
         loadPoints();
         pluginPanel.rebuild();
     }
