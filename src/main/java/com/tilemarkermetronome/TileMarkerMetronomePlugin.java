@@ -123,7 +123,7 @@ public class TileMarkerMetronomePlugin extends Plugin {
         }
         currentTick++;
 
-        if (currentTick > group.getTickCounter()) {
+        if (currentTick > 100) {
             currentTick = 1;
         }
     }
