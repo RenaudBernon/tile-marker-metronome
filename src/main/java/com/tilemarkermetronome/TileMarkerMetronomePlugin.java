@@ -40,6 +40,8 @@ import net.runelite.client.ui.components.colorpicker.ColorPickerManager;
 import net.runelite.client.ui.overlay.OverlayManager;
 import net.runelite.client.util.ImageUtil;
 
+import static com.tilemarkermetronome.TileMarkerMetronomeGroup.AnimationType.DISABLED;
+
 
 @PluginDescriptor(
         name = "Tile Marker Metronome"
@@ -56,6 +58,7 @@ public class TileMarkerMetronomePlugin extends Plugin {
     private final List<TileMarkerMetronomeGroup> tileMarkerMetronomeGroups = new ArrayList<>();
     private TileMarkerMetronomePluginPanel pluginPanel;
     private NavigationButton navigationButton;
+    private transient int currentTick;
 
     @Inject
     private Client client;
@@ -107,10 +110,22 @@ public class TileMarkerMetronomePlugin extends Plugin {
 
     @Subscribe
     public void onGameTick(GameTick gameTick) {
-        tileMarkerMetronomeGroups
-                .stream()
-                .filter(TileMarkerMetronomeGroup::isVisible)
-                .forEach(TileMarkerMetronomeGroup::tick);
+        tileMarkerMetronomeGroups.forEach(this::tickGroup);
+    }
+
+    void tickGroup(TileMarkerMetronomeGroup group) {
+        if (group.getAnimationType() == DISABLED) {
+            return;
+        }
+
+        if (currentTick % group.getTickCounter() == 0) {
+            group.setNextColor();
+        }
+        currentTick++;
+
+        if (currentTick > group.getTickCounter()) {
+            currentTick = 1;
+        }
     }
 
     @Subscribe

@@ -9,9 +9,11 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
+import lombok.extern.slf4j.Slf4j;
 
 import static com.tilemarkermetronome.TileMarkerMetronomeGroup.AnimationType.DISABLED;
 
+@Slf4j
 @Getter
 @Setter
 public class TileMarkerMetronomeGroup {
@@ -49,19 +51,8 @@ public class TileMarkerMetronomeGroup {
         this.isActive = false;
     }
 
-    public void tick() {
-        if (animationType == DISABLED) {
-            return;
-        }
-
-        if (currentTick % tickCounter == 0) {
-            currentColor++;
-        }
-        currentTick++;
-
-        if (currentTick > tickCounter) {
-            currentTick = 1;
-        }
+    public void setNextColor() {
+        currentColor++;
         if (currentColor >= colors.size()) {
             currentColor = 0;
         }
@@ -78,7 +69,9 @@ public class TileMarkerMetronomeGroup {
                             currentTileColor.set(0);
                         }
                     });
-            return colors.get(currentTileColor.get());
+            Color color = colors.get(currentTileColor.get());
+            log.info("Current color: {}", color);
+            return color;
         }
         return colors.get(currentColor);
     }

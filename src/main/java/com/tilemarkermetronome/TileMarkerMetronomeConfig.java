@@ -69,6 +69,7 @@ public interface TileMarkerMetronomeConfig extends Config {
             section = defaultConfigSection,
             position = 5
     )
+    @Range(max = 100)
     default int tickCounter() {
         return 1;
     }
