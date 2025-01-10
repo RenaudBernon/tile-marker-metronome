@@ -58,7 +58,7 @@ public class TileMarkerMetronomePlugin extends Plugin {
     private final List<TileMarkerMetronomeGroup> tileMarkerMetronomeGroups = new ArrayList<>();
     private TileMarkerMetronomePluginPanel pluginPanel;
     private NavigationButton navigationButton;
-    private transient int currentTick;
+    private int currentTick;
 
     @Inject
     private Client client;
@@ -111,6 +111,7 @@ public class TileMarkerMetronomePlugin extends Plugin {
     @Subscribe
     public void onGameTick(GameTick gameTick) {
         tileMarkerMetronomeGroups.forEach(this::tickGroup);
+        currentTick++;
     }
 
     void tickGroup(TileMarkerMetronomeGroup group) {
@@ -120,11 +121,6 @@ public class TileMarkerMetronomePlugin extends Plugin {
 
         if (currentTick % group.getTickCounter() == 0) {
             group.setNextColor();
-        }
-        currentTick++;
-
-        if (currentTick > 100) {
-            currentTick = 1;
         }
     }
 
@@ -162,7 +158,7 @@ public class TileMarkerMetronomePlugin extends Plugin {
                     .findFirst();
 
             client.createMenuEntry(-1)
-                    .setOption(markedTile.isPresent() ? "Unmark" : "Mark")
+                    .setOption(markedTile.isPresent() ? "Remove from group" : "Add to group")
                     .setTarget("Tile")
                     .setType(MenuAction.RUNELITE)
                     .onClick(e -> {
