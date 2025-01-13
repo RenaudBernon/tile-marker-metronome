@@ -8,7 +8,6 @@ import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Polygon;
 import java.awt.Stroke;
-import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.Client;
 import net.runelite.api.Perspective;
 import net.runelite.api.Point;
@@ -19,7 +18,6 @@ import net.runelite.client.ui.overlay.OverlayLayer;
 import net.runelite.client.ui.overlay.OverlayPosition;
 import net.runelite.client.ui.overlay.OverlayUtil;
 
-@Slf4j
 public class TileMarkerMetronomeOverlay extends Overlay {
     private static final int MAX_DRAW_DISTANCE = 32;
 

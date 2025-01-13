@@ -1,19 +1,12 @@
 package com.tilemarkermetronome;
 
-import lombok.Getter;
-import lombok.Setter;
-
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.IntStream;
-import lombok.extern.slf4j.Slf4j;
+import lombok.Getter;
+import lombok.Setter;
 
-import static com.tilemarkermetronome.TileMarkerMetronomeGroup.AnimationType.DISABLED;
-
-@Slf4j
 @Getter
 @Setter
 public class TileMarkerMetronomeGroup {
@@ -61,17 +54,12 @@ public class TileMarkerMetronomeGroup {
     public Color getCurrentColor(TileMarkerMetronomePoint point) {
         if (animationType == AnimationType.TRAIN) {
             int pointIndex = tileMarkerMetronomePoints.indexOf(point);
-            AtomicInteger currentTileColor = new AtomicInteger(currentColor);
-            IntStream.range(0, pointIndex)
-                    .forEach(index -> {
-                        currentTileColor.getAndIncrement();
-                        if (currentTileColor.get() >= colors.size()) {
-                            currentTileColor.set(0);
-                        }
-                    });
-            Color color = colors.get(currentTileColor.get());
-            log.info("Current color: {}", color);
-            return color;
+            int currentTileColor = 0;
+            for (int i = 0; i < pointIndex; i++) {
+                currentTileColor++;
+                currentTileColor %= colors.size();
+            }
+            return colors.get(currentTileColor);
         }
         return colors.get(currentColor);
     }

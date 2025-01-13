@@ -15,6 +15,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
+import javax.swing.SwingUtilities;
 import lombok.AccessLevel;
 import lombok.Getter;
 import net.runelite.api.Client;
@@ -98,7 +99,7 @@ public class TileMarkerMetronomePlugin extends Plugin {
                 .panel(pluginPanel)
                 .build();
         clientToolbar.addNavigation(navigationButton);
-        pluginPanel.rebuild();
+        SwingUtilities.invokeLater(() -> pluginPanel.rebuild());
     }
 
     @Override
@@ -128,7 +129,7 @@ public class TileMarkerMetronomePlugin extends Plugin {
     public void onProfileChanged(ProfileChanged profileChanged) {
         loadGroups();
         loadPoints();
-        pluginPanel.rebuild();
+        SwingUtilities.invokeLater(() -> pluginPanel.rebuild());
     }
 
     @Subscribe
@@ -137,7 +138,7 @@ public class TileMarkerMetronomePlugin extends Plugin {
             return;
         }
         loadPoints();
-        pluginPanel.rebuild();
+        SwingUtilities.invokeLater(() -> pluginPanel.rebuild());
     }
 
     @Subscribe
@@ -195,7 +196,7 @@ public class TileMarkerMetronomePlugin extends Plugin {
 
     public void saveGroupsAndRebuild() {
         saveGroups();
-        pluginPanel.rebuild();
+        SwingUtilities.invokeLater(() -> pluginPanel.rebuild());
     }
 
     public void saveGroups() {
