@@ -5,6 +5,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.google.inject.Provides;
 import com.tilemarkermetronome.ui.TileMarkerMetronomePluginPanel;
+import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,10 +30,13 @@ import net.runelite.api.events.GameStateChanged;
 import net.runelite.api.events.GameTick;
 import net.runelite.api.events.MenuEntryAdded;
 import net.runelite.client.config.ConfigManager;
+import net.runelite.client.config.Keybind;
 import net.runelite.client.eventbus.EventBus;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.events.ProfileChanged;
 import net.runelite.client.game.chatbox.ChatboxPanelManager;
+import net.runelite.client.input.KeyListener;
+import net.runelite.client.input.KeyManager;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.ui.ClientToolbar;
@@ -47,7 +51,7 @@ import static com.tilemarkermetronome.TileMarkerMetronomeGroup.AnimationType.DIS
 @PluginDescriptor(
         name = "Tile Marker Metronome"
 )
-public class TileMarkerMetronomePlugin extends Plugin {
+public class TileMarkerMetronomePlugin extends Plugin implements KeyListener {
     private static final String CONFIG_GROUP = "tileMarkerMetronome";
     private static final String CONFIG_METRONOME_GROUPS_KEY = "metronomeGroups";
     private static final String WALK_HERE = "Walk here";
@@ -82,6 +86,8 @@ public class TileMarkerMetronomePlugin extends Plugin {
     private ColorPickerManager colorPickerManager;
     @Inject
     private Gson gson;
+    @Inject
+    private KeyManager keyManager;
 
     @Override
     public void startUp() {
@@ -100,6 +106,7 @@ public class TileMarkerMetronomePlugin extends Plugin {
                 .build();
         clientToolbar.addNavigation(navigationButton);
         SwingUtilities.invokeLater(() -> pluginPanel.rebuild());
+        keyManager.registerKeyListener(this);
     }
 
     @Override
@@ -107,6 +114,7 @@ public class TileMarkerMetronomePlugin extends Plugin {
         overlayManager.remove(overlay);
         tileMarkerMetronomeGroups.clear();
         clientToolbar.removeNavigation(navigationButton);
+        keyManager.unregisterKeyListener(this);
     }
 
     @Subscribe
@@ -208,6 +216,27 @@ public class TileMarkerMetronomePlugin extends Plugin {
         }
     }
 
+    @Override
+    public void keyTyped(KeyEvent e) {
+    }
+
+    @Override
+    public void keyPressed(KeyEvent e) {
+        tileMarkerMetronomeGroups.forEach(group -> {
+            if (group.getTickResetHotkey().matches(e)) {
+                group.setCurrentColor(0);
+                group.setCurrentTick(0);
+            }
+            if (group.getVisibilityHotkey().matches(e)) {
+                group.toggleVisibility();
+            }
+        });
+    }
+
+    @Override
+    public void keyReleased(KeyEvent e) {
+    }
+
     private void markTile(LocalPoint localPoint) {
         if (localPoint == null) {
             return;
@@ -292,6 +321,17 @@ public class TileMarkerMetronomePlugin extends Plugin {
         } else {
             List<TileMarkerMetronomeGroup> savedGroups = gson.fromJson(json, new TypeToken<ArrayList<TileMarkerMetronomeGroup>>() {
             }.getType());
+
+            //Add default for older saved groups
+            savedGroups.forEach(tileMarkerMetronomeGroup -> {
+                if (tileMarkerMetronomeGroup.getTickResetHotkey() == null) {
+                    tileMarkerMetronomeGroup.setTickResetHotkey(Keybind.NOT_SET);
+                }
+                if (tileMarkerMetronomeGroup.getVisibilityHotkey() == null) {
+                    tileMarkerMetronomeGroup.setVisibilityHotkey(Keybind.NOT_SET);
+                }
+            });
+
             tileMarkerMetronomeGroups.addAll(savedGroups);
         }
     }
