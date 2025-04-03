@@ -3,6 +3,7 @@ package com.tilemarkermetronome.ui;
 import com.tilemarkermetronome.TileMarkerMetronomeGroup;
 import com.tilemarkermetronome.TileMarkerMetronomeGroup.AnimationType;
 import com.tilemarkermetronome.TileMarkerMetronomePlugin;
+import com.tilemarkermetronome.ui.util.HotkeyButton;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -202,6 +203,7 @@ public class TileMarkerGroupPanel extends JPanel {
         settingsConfigPanel.setBorder(new EmptyBorder(8, 10, 8, 10));
         settingsConfigPanel.setBackground(DARKER_GRAY_COLOR);
 
+        settingsConfigPanel.add(createHotkeysPanel());
         settingsConfigPanel.add(createRenderTypePanel());
         settingsConfigPanel.add(createTickCounterPanel());
         settingsConfigPanel.add(createFillOpacityPanel());
@@ -271,6 +273,41 @@ public class TileMarkerGroupPanel extends JPanel {
         tickCounterPanel.add(tickCounterLabel);
         tickCounterPanel.add(tickCounterSpinner);
         return tickCounterPanel;
+    }
+
+    private JPanel createHotkeysPanel() {
+        JPanel hotKeysPanel = new JPanel(new GridLayout(2, 1));
+
+        hotKeysPanel.setBackground(DARKER_GRAY_COLOR);
+        hotKeysPanel.setBorder(new EmptyBorder(1, 0, 10, 0));
+
+        JLabel hotkeysLabel = new JLabel("Hotkeys");
+        hotkeysLabel.setBorder(new EmptyBorder(0, 0, 0, 0));
+        hotkeysLabel.setBackground(DARKER_GRAY_COLOR);
+
+
+        JPanel hotkeysListPanel = new JPanel(new GridLayout(0, 2));
+        hotkeysListPanel.setBackground(DARKER_GRAY_COLOR);
+        hotkeysListPanel.setBorder(new EmptyBorder(0, 0, 0, 0));
+
+        JLabel tickResetLabel = new JLabel("Cycle reset");
+        tickResetLabel.setBorder(new EmptyBorder(0, 0, 0, 0));
+        tickResetLabel.setBackground(DARKER_GRAY_COLOR);
+        HotkeyButton tickResetHotkeyButton = new HotkeyButton(group.getTickResetHotkey(), group::setTickResetHotkey, false);
+
+        JLabel visibilityLabel = new JLabel("Visibility");
+        visibilityLabel.setBorder(new EmptyBorder(0, 0, 0, 0));
+        visibilityLabel.setBackground(DARKER_GRAY_COLOR);
+        HotkeyButton visibilityHotkeyButton = new HotkeyButton(group.getVisibilityHotkey(), group::setVisibilityHotkey, false);
+
+        hotkeysListPanel.add(tickResetLabel);
+        hotkeysListPanel.add(tickResetHotkeyButton);
+        hotkeysListPanel.add(visibilityLabel);
+        hotkeysListPanel.add(visibilityHotkeyButton);
+
+        hotKeysPanel.add(hotkeysLabel);
+        hotKeysPanel.add(hotkeysListPanel);
+        return hotKeysPanel;
     }
 
     private JPanel createRenderTypePanel() {
