@@ -127,8 +127,8 @@ public class TileMarkerMetronomePlugin extends Plugin implements KeyListener {
         if (group.getAnimationType() == DISABLED) {
             return;
         }
-
-        if (currentTick % group.getTickCounter() == 0) {
+        group.incrementTick();
+        if (group.getCurrentTick() % group.getTickCounter() == 0) {
             group.setNextColor();
         }
     }
