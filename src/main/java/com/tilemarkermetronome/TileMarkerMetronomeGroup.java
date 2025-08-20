@@ -49,6 +49,10 @@ public class TileMarkerMetronomeGroup {
         this.isActive = false;
     }
 
+    public void incrementTick() {
+        currentTick++;
+    }
+
     public void setNextColor() {
         currentColor++;
         if (currentColor >= colors.size()) {
