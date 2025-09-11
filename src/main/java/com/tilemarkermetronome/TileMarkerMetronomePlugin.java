@@ -5,18 +5,6 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.google.inject.Provides;
 import com.tilemarkermetronome.ui.TileMarkerMetronomePluginPanel;
-import java.awt.event.KeyEvent;
-import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.stream.Collectors;
-import javax.inject.Inject;
-import javax.swing.SwingUtilities;
 import lombok.AccessLevel;
 import lombok.Getter;
 import net.runelite.api.Client;
@@ -45,12 +33,23 @@ import net.runelite.client.ui.components.colorpicker.ColorPickerManager;
 import net.runelite.client.ui.overlay.OverlayManager;
 import net.runelite.client.util.ImageUtil;
 
+import javax.inject.Inject;
+import javax.swing.SwingUtilities;
+import java.awt.event.KeyEvent;
+import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
 import static com.tilemarkermetronome.TileMarkerMetronomeGroup.AnimationType.DISABLED;
 
 
-@PluginDescriptor(
-        name = "Tile Marker Metronome"
-)
+@PluginDescriptor(name = "Tile Marker Metronome")
 public class TileMarkerMetronomePlugin extends Plugin implements KeyListener {
     private static final String CONFIG_GROUP = "tileMarkerMetronome";
     private static final String CONFIG_METRONOME_GROUPS_KEY = "metronomeGroups";
@@ -98,12 +97,7 @@ public class TileMarkerMetronomePlugin extends Plugin implements KeyListener {
         pluginPanel = new TileMarkerMetronomePluginPanel(this);
 
         final BufferedImage icon = ImageUtil.loadImageResource(getClass(), PANEL_ICON);
-        navigationButton = NavigationButton.builder()
-                .tooltip(PLUGIN_NAME)
-                .icon(icon)
-                .priority(10000)
-                .panel(pluginPanel)
-                .build();
+        navigationButton = NavigationButton.builder().tooltip(PLUGIN_NAME).icon(icon).priority(10000).panel(pluginPanel).build();
         clientToolbar.addNavigation(navigationButton);
         SwingUtilities.invokeLater(() -> pluginPanel.rebuild());
         keyManager.registerKeyListener(this);
@@ -167,7 +161,7 @@ public class TileMarkerMetronomePlugin extends Plugin implements KeyListener {
                     .findFirst();
 
             client.createMenuEntry(-1)
-                    .setOption(markedTile.isPresent() ? "Remove from group" : "Add to group")
+                    .setOption("Add to group")
                     .setTarget("Tile")
                     .setType(MenuAction.RUNELITE)
                     .onClick(e -> {
@@ -176,12 +170,23 @@ public class TileMarkerMetronomePlugin extends Plugin implements KeyListener {
                             markTile(target.getLocalLocation());
                         }
                     });
-
-            markedTile.ifPresent(tileMarkerMetronomePoint -> client.createMenuEntry(-2)
-                    .setOption("Label")
-                    .setTarget("Tile")
-                    .setType(MenuAction.RUNELITE)
-                    .onClick(e -> labelTile(tileMarkerMetronomePoint)));
+            markedTile.ifPresent(tileMarkerMetronomePoint -> {
+                client.createMenuEntry(-1)
+                        .setOption("Remove from group")
+                        .setTarget("Tile")
+                        .setType(MenuAction.RUNELITE)
+                        .onClick(e -> {
+                            Tile target = client.getSelectedSceneTile();
+                            if (target != null) {
+                                unmarkTile(target.getLocalLocation());
+                            }
+                        });
+                client.createMenuEntry(-1)
+                        .setOption("Label")
+                        .setTarget("Tile")
+                        .setType(MenuAction.RUNELITE)
+                        .onClick(e -> labelTile(tileMarkerMetronomePoint));
+            });
         }
     }
 
@@ -249,11 +254,27 @@ public class TileMarkerMetronomePlugin extends Plugin implements KeyListener {
         TileMarkerMetronomePoint point = new TileMarkerMetronomePoint(regionId, worldPoint, null);
 
         List<TileMarkerMetronomePoint> currentGroupTileMarkerMetronomePoints = getActiveGroup().getTileMarkerMetronomePoints();
-        if (currentGroupTileMarkerMetronomePoints.contains(point)) {
-            currentGroupTileMarkerMetronomePoints.remove(point);
-        } else {
-            currentGroupTileMarkerMetronomePoints.add(point);
+        currentGroupTileMarkerMetronomePoints.add(point);
+
+        savePoints(groupId, regionId);
+        loadPoints();
+    }
+
+    private void unmarkTile(LocalPoint localPoint) {
+        if (localPoint == null) {
+            return;
         }
+
+        WorldPoint worldPoint = WorldPoint.fromLocalInstance(client, localPoint);
+
+        int regionId = worldPoint.getRegionID();
+        UUID groupId = getActiveGroup().getId();
+        TileMarkerMetronomePoint point = new TileMarkerMetronomePoint(regionId, worldPoint, null);
+
+        List<TileMarkerMetronomePoint> currentGroupTileMarkerMetronomePoints = getActiveGroup().getTileMarkerMetronomePoints();
+        currentGroupTileMarkerMetronomePoints.stream()
+                .filter(p -> p.isSameAs(point.getWorldPoint()))
+                .forEach(currentGroupTileMarkerMetronomePoints::remove);
 
         savePoints(groupId, regionId);
         loadPoints();
@@ -261,7 +282,8 @@ public class TileMarkerMetronomePlugin extends Plugin implements KeyListener {
 
     private void labelTile(TileMarkerMetronomePoint existing) {
         chatboxPanelManager.openTextInput("Tile label")
-                .value(Optional.ofNullable(existing.getLabel()).orElse(""))
+                .value(Optional.ofNullable(existing.getLabel())
+                        .orElse(""))
                 .onDone(existing::setLabel)
                 .build();
     }

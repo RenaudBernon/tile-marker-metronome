@@ -1,12 +1,13 @@
 package com.tilemarkermetronome;
 
+import lombok.Getter;
+import lombok.Setter;
+import net.runelite.client.config.Keybind;
+
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import lombok.Getter;
-import lombok.Setter;
-import net.runelite.client.config.Keybind;
 
 @Getter
 @Setter
@@ -27,6 +28,7 @@ public class TileMarkerMetronomeGroup {
     private transient int currentTick;
     private Keybind tickResetHotkey;
     private Keybind visibilityHotkey;
+    private boolean collapsed;
 
     public TileMarkerMetronomeGroup(String label, TileMarkerMetronomeConfig config, boolean isVisible, boolean isActive) {
         this.label = label;
@@ -39,6 +41,7 @@ public class TileMarkerMetronomeGroup {
         this.isActive = isActive;
         this.tickResetHotkey = Keybind.NOT_SET;
         this.visibilityHotkey = Keybind.NOT_SET;
+        this.collapsed = false;
     }
 
     public void setActive() {
@@ -61,16 +64,16 @@ public class TileMarkerMetronomeGroup {
     }
 
     public Color getCurrentColor(TileMarkerMetronomePoint point) {
-        if (animationType == AnimationType.TRAIN) {
-            int pointIndex = tileMarkerMetronomePoints.indexOf(point);
-            int currentTileColor = currentColor;
-            for (int i = 0; i < pointIndex; i++) {
-                currentTileColor++;
-                currentTileColor %= colors.size();
-            }
-            return colors.get(currentTileColor);
+        if (animationType == AnimationType.SYNCED) {
+            return colors.get(currentColor);
         }
-        return colors.get(currentColor);
+        int pointIndex = tileMarkerMetronomePoints.indexOf(point);
+        int currentTileColor = currentColor;
+        for (int i = 0; i < pointIndex; i++) {
+            currentTileColor++;
+            currentTileColor %= colors.size();
+        }
+        return colors.get(currentTileColor);
     }
 
     public void toggleVisibility() {
