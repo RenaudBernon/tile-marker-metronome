@@ -257,7 +257,7 @@ public class TileMarkerMetronomePlugin extends Plugin implements KeyListener {
         currentGroupTileMarkerMetronomePoints.add(point);
 
         savePoints(groupId, regionId);
-        loadPoints();
+        loadPoints(groupId, regionId);
     }
 
     private void unmarkTile(LocalPoint localPoint) {
@@ -277,7 +277,7 @@ public class TileMarkerMetronomePlugin extends Plugin implements KeyListener {
                 .forEach(currentGroupTileMarkerMetronomePoints::remove);
 
         savePoints(groupId, regionId);
-        loadPoints();
+        loadPoints(groupId, regionId);
     }
 
     private void labelTile(TileMarkerMetronomePoint existing) {
