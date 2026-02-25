@@ -11,6 +11,7 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.border.EmptyBorder;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -23,15 +24,8 @@ import static com.tilemarkermetronome.ui.util.UIConstants.*;
 import static com.tilemarkermetronome.ui.util.UIStyler.*;
 
 public class TileMarkerMetronomePluginPanel extends PluginPanel {
-    private static final BufferedImage ADD_IMAGE = ImageUtil.loadImageResource(TileMarkerMetronomePlugin.class, "add_icon.png");
-    private static final ImageIcon ADD_ICON = new ImageIcon(ADD_IMAGE);
-    private static final ImageIcon ADD_HOVER_ICON = new ImageIcon(ImageUtil.alphaOffset(ADD_IMAGE, -100));
-
-    private final JLabel createGroup = new JLabel(ADD_ICON);
-    private final JLabel title = styledLabel("Tile marker metronome groups");
     private final PluginErrorPanel noGroupsPanel = new PluginErrorPanel();
     private final JPanel groupsView = new JPanel(new GridBagLayout());
-
     private final TileMarkerMetronomePlugin plugin;
 
     public TileMarkerMetronomePluginPanel(TileMarkerMetronomePlugin tileMarkerMetronomePlugin) {
@@ -41,31 +35,33 @@ public class TileMarkerMetronomePluginPanel extends PluginPanel {
         setBorder(PANEL_BORDER);
 
         JPanel northPanel = new JPanel(new BorderLayout());
-        northPanel.setBorder(new javax.swing.border.EmptyBorder(MINIMAL_PADDING, 0, SMALL_PADDING, 0));
+        northPanel.setBorder(new EmptyBorder(MINIMAL_PADDING, 0, SMALL_PADDING, 0));
         stylePanel(northPanel);
 
-        northPanel.add(title, BorderLayout.WEST);
-
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, MINIMAL_PADDING, 0));
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, MINIMAL_PADDING, 0));
         stylePanel(buttonPanel);
 
+        JButton createButton = new JButton("Add group");
         JButton importButton = new JButton("Import");
         JButton exportButton = new JButton("Export All");
 
+        styleButton(createButton);
         styleButton(importButton);
         styleButton(exportButton);
 
+        createButton.setToolTipText("Create new group");
         importButton.setToolTipText("Import groups");
         exportButton.setToolTipText("Export all groups");
 
+        createButton.addActionListener(e -> plugin.addGroup());
         importButton.addActionListener(e -> showImportDialog());
         exportButton.addActionListener(e -> showExportDialog());
 
+        buttonPanel.add(createButton);
         buttonPanel.add(exportButton);
         buttonPanel.add(importButton);
-        buttonPanel.add(createGroup);
 
-        northPanel.add(buttonPanel, BorderLayout.EAST);
+        northPanel.add(buttonPanel);
 
         JPanel centerPanel = new JPanel(new BorderLayout());
         stylePanel(centerPanel);
@@ -83,13 +79,6 @@ public class TileMarkerMetronomePluginPanel extends PluginPanel {
 
         groupsView.add(noGroupsPanel, constraints);
         constraints.gridy++;
-
-        createGroup.setToolTipText("Create tile group");
-        configureMouseListener(createGroup,
-                ignored -> plugin.addGroup(),
-                ignored -> createGroup.setIcon(ADD_HOVER_ICON),
-                ignored -> createGroup.setIcon(ADD_ICON)
-        );
 
         centerPanel.add(groupsView, BorderLayout.CENTER);
 
@@ -141,7 +130,6 @@ public class TileMarkerMetronomePluginPanel extends PluginPanel {
 
         boolean empty = constraints.gridy == 0;
         noGroupsPanel.setVisible(empty);
-        title.setVisible(!empty);
 
         groupsView.add(noGroupsPanel, constraints);
         constraints.gridy++;
