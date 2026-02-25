@@ -4,13 +4,11 @@ import com.tilemarkermetronome.TileMarkerMetronomeGroup;
 import com.tilemarkermetronome.TileMarkerMetronomeGroup.AnimationType;
 import com.tilemarkermetronome.TileMarkerMetronomePlugin;
 import com.tilemarkermetronome.ui.util.HotkeyButton;
-import net.runelite.client.ui.ColorScheme;
 import net.runelite.client.ui.components.FlatTextField;
 import net.runelite.client.ui.components.colorpicker.RuneliteColorPicker;
 import net.runelite.client.util.ColorUtil;
 import net.runelite.client.util.ImageUtil;
 
-import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -22,7 +20,6 @@ import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingUtilities;
-import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.MatteBorder;
 import javax.swing.text.NumberFormatter;
@@ -38,24 +35,44 @@ import java.text.DecimalFormat;
 import java.util.List;
 
 import static com.tilemarkermetronome.ui.util.ComponentUtil.configureMouseListener;
+import static com.tilemarkermetronome.ui.util.UIConstants.ACCENT_COLOR;
+import static com.tilemarkermetronome.ui.util.UIConstants.BORDER_WIDTH_MAX;
+import static com.tilemarkermetronome.ui.util.UIConstants.BORDER_WIDTH_MIN;
+import static com.tilemarkermetronome.ui.util.UIConstants.BORDER_WIDTH_STEP;
+import static com.tilemarkermetronome.ui.util.UIConstants.BOTTOM_BORDER;
+import static com.tilemarkermetronome.ui.util.UIConstants.ERROR_COLOR;
+import static com.tilemarkermetronome.ui.util.UIConstants.FILL_OPACITY_MAX;
+import static com.tilemarkermetronome.ui.util.UIConstants.FILL_OPACITY_MIN;
+import static com.tilemarkermetronome.ui.util.UIConstants.FILL_OPACITY_STEP;
+import static com.tilemarkermetronome.ui.util.UIConstants.GROUP_BORDER;
+import static com.tilemarkermetronome.ui.util.UIConstants.LABEL_HEIGHT;
+import static com.tilemarkermetronome.ui.util.UIConstants.LABEL_PADDING;
+import static com.tilemarkermetronome.ui.util.UIConstants.MINIMAL_PADDING;
+import static com.tilemarkermetronome.ui.util.UIConstants.NO_BORDER;
+import static com.tilemarkermetronome.ui.util.UIConstants.PRIMARY_FOREGROUND;
+import static com.tilemarkermetronome.ui.util.UIConstants.SECONDARY_FOREGROUND;
+import static com.tilemarkermetronome.ui.util.UIConstants.SMALL_PADDING;
+import static com.tilemarkermetronome.ui.util.UIConstants.STANDARD_PADDING;
+import static com.tilemarkermetronome.ui.util.UIConstants.SUCCESS_COLOR;
+import static com.tilemarkermetronome.ui.util.UIConstants.TICK_COUNTER_MAX;
+import static com.tilemarkermetronome.ui.util.UIConstants.TICK_COUNTER_MIN;
+import static com.tilemarkermetronome.ui.util.UIConstants.TICK_COUNTER_STEP;
+import static com.tilemarkermetronome.ui.util.UIStyler.styleButton;
+import static com.tilemarkermetronome.ui.util.UIStyler.styleComboBox;
+import static com.tilemarkermetronome.ui.util.UIStyler.stylePanel;
+import static com.tilemarkermetronome.ui.util.UIStyler.styleSectionPanel;
+import static com.tilemarkermetronome.ui.util.UIStyler.styleSpinner;
+import static com.tilemarkermetronome.ui.util.UIStyler.styledLabel;
 import static java.awt.BorderLayout.CENTER;
 import static java.awt.BorderLayout.EAST;
 import static java.awt.BorderLayout.WEST;
-import static java.awt.Color.GRAY;
-import static java.awt.Color.ORANGE;
 import static java.awt.Color.WHITE;
 import static java.awt.FlowLayout.LEFT;
 import static java.awt.event.KeyEvent.VK_ENTER;
 import static java.awt.event.KeyEvent.VK_ESCAPE;
-import static net.runelite.client.ui.ColorScheme.DARKER_GRAY_COLOR;
-import static net.runelite.client.ui.ColorScheme.LIGHT_GRAY_COLOR;
-import static net.runelite.client.ui.ColorScheme.PROGRESS_COMPLETE_COLOR;
-import static net.runelite.client.ui.ColorScheme.PROGRESS_ERROR_COLOR;
 import static net.runelite.client.ui.FontManager.getRunescapeFont;
 
 public class TileMarkerGroupPanel extends JPanel {
-    private static final Border LABEL_BOTTOM_BORDER = BorderFactory.createMatteBorder(0, 0, 1, 0, ColorScheme.DARK_GRAY_COLOR);
-
     private static final BufferedImage DELETE_IMAGE = ImageUtil.loadImageResource(TileMarkerMetronomePlugin.class, "delete_icon.png");
     private static final ImageIcon DELETE_ICON = new ImageIcon(DELETE_IMAGE);
     private static final ImageIcon DELETE_HOVER_ICON = new ImageIcon(ImageUtil.alphaOffset(DELETE_IMAGE, -100));
@@ -92,11 +109,11 @@ public class TileMarkerGroupPanel extends JPanel {
         this.group = group;
 
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        setBackground(DARKER_GRAY_COLOR);
+        stylePanel(this);
         if (group.isActive()) {
-            setBorder(new MatteBorder(1, 1, 1, 1, ORANGE));
+            setBorder(new MatteBorder(1, 1, 1, 1, ACCENT_COLOR));
         } else {
-            setBorder(new EmptyBorder(1, 1, 1, 1));
+            setBorder(GROUP_BORDER);
         }
 
         add(createGroupNameComponent());
@@ -105,23 +122,22 @@ public class TileMarkerGroupPanel extends JPanel {
 
     private JPanel createGroupNameComponent() {
         JPanel groupNamePanel = new JPanel(new BorderLayout());
-        groupNamePanel.setBackground(DARKER_GRAY_COLOR);
-        groupNamePanel.setBorder(LABEL_BOTTOM_BORDER);
+        styleSectionPanel(groupNamePanel);
 
-        JPanel labelActionsContainer = new JPanel(new BorderLayout(3, 0));
+        JPanel labelActionsContainer = new JPanel(new BorderLayout(MINIMAL_PADDING, 0));
         JPanel labelActions = new JPanel(new FlowLayout());
-        labelActionsContainer.setBorder(new EmptyBorder(0, 0, 0, 0));
-        labelActionsContainer.setBackground(DARKER_GRAY_COLOR);
-        labelActions.setBorder(new EmptyBorder(0, 0, 0, 8));
-        labelActions.setBackground(DARKER_GRAY_COLOR);
+        labelActionsContainer.setBorder(NO_BORDER);
+        stylePanel(labelActionsContainer);
+        labelActions.setBorder(new EmptyBorder(0, 0, 0, STANDARD_PADDING));
+        stylePanel(labelActions);
 
         labelInput.setText(group.getLabel());
         labelInput.setBorder(null);
         labelInput.setEditable(false);
-        labelInput.setBackground(DARKER_GRAY_COLOR);
-        labelInput.setPreferredSize(new Dimension(0, 24));
-        labelInput.getTextField().setForeground(WHITE);
-        labelInput.getTextField().setBorder(new EmptyBorder(0, 8, 0, 0));
+        stylePanel(labelInput);
+        labelInput.setPreferredSize(new Dimension(0, LABEL_HEIGHT));
+        labelInput.getTextField().setForeground(PRIMARY_FOREGROUND);
+        labelInput.getTextField().setBorder(new EmptyBorder(0, STANDARD_PADDING, 0, 0));
         labelInput.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent keyEvent) {
@@ -140,24 +156,24 @@ public class TileMarkerGroupPanel extends JPanel {
 
         saveLabel.setVisible(false);
         saveLabel.setFont(getRunescapeFont());
-        saveLabel.setForeground(PROGRESS_COMPLETE_COLOR);
+        saveLabel.setForeground(SUCCESS_COLOR);
         configureMouseListener(
                 saveLabel,
                 ignored -> save(),
-                ignored -> saveLabel.setForeground(PROGRESS_COMPLETE_COLOR.darker()),
-                ignored -> saveLabel.setForeground(PROGRESS_COMPLETE_COLOR));
+                ignored -> saveLabel.setForeground(SUCCESS_COLOR.darker()),
+                ignored -> saveLabel.setForeground(SUCCESS_COLOR));
 
         cancelLabel.setVisible(false);
         cancelLabel.setFont(getRunescapeFont());
-        cancelLabel.setForeground(PROGRESS_ERROR_COLOR);
+        cancelLabel.setForeground(ERROR_COLOR);
         configureMouseListener(
                 cancelLabel,
                 ignored -> cancel(),
-                ignored -> cancelLabel.setForeground(PROGRESS_ERROR_COLOR.darker()),
-                ignored -> cancelLabel.setForeground(PROGRESS_ERROR_COLOR));
+                ignored -> cancelLabel.setForeground(ERROR_COLOR.darker()),
+                ignored -> cancelLabel.setForeground(ERROR_COLOR));
 
         renameLabel.setVisible(true);
-        renameLabel.setForeground(LIGHT_GRAY_COLOR.darker());
+        renameLabel.setForeground(SECONDARY_FOREGROUND);
         configureMouseListener(
                 renameLabel,
                 ignored -> {
@@ -200,7 +216,8 @@ public class TileMarkerGroupPanel extends JPanel {
     private JPanel createGroupConfigComponent() {
         JPanel groupConfigPanel = new JPanel();
         groupConfigPanel.setLayout(new BoxLayout(groupConfigPanel, BoxLayout.Y_AXIS));
-        groupConfigPanel.setBorder(new EmptyBorder(0, 0, 0, 0));
+        groupConfigPanel.setBorder(NO_BORDER);
+        stylePanel(groupConfigPanel);
         groupConfigPanel.add(createColorConfigPanel());
         groupConfigPanel.add(createVisibilityConfigPanel());
         groupConfigPanel.add(createSettingsConfigPanel());
@@ -212,8 +229,8 @@ public class TileMarkerGroupPanel extends JPanel {
     private JPanel createSettingsConfigPanel() {
         JPanel settingsConfigPanel = new JPanel();
         settingsConfigPanel.setLayout(new BoxLayout(settingsConfigPanel, BoxLayout.Y_AXIS));
-        settingsConfigPanel.setBorder(new EmptyBorder(4, 8, 0, 0));
-        settingsConfigPanel.setBackground(DARKER_GRAY_COLOR);
+        settingsConfigPanel.setBorder(new EmptyBorder(MINIMAL_PADDING, STANDARD_PADDING, 0, 0));
+        stylePanel(settingsConfigPanel);
 
         settingsConfigPanel.add(createHotkeysPanel());
         settingsConfigPanel.add(createRenderTypePanel());
@@ -226,19 +243,19 @@ public class TileMarkerGroupPanel extends JPanel {
 
     private JPanel createBorderWidthPanel() {
         JPanel borderWidthPanel = new JPanel(new GridLayout(1, 2));
-        borderWidthPanel.setBorder(new EmptyBorder(1, 0, 0, 0));
-        borderWidthPanel.setBackground(DARKER_GRAY_COLOR);
+        borderWidthPanel.setBorder(new EmptyBorder(MINIMAL_PADDING, 0, 0, 0));
+        stylePanel(borderWidthPanel);
 
-        JLabel borderWidthLabel = new JLabel("Border width");
-        borderWidthLabel.setBorder(new EmptyBorder(0, 0, 0, 0));
-        borderWidthLabel.setBackground(DARKER_GRAY_COLOR);
+        JLabel borderWidthLabel = styledLabel("Border width");
+        borderWidthLabel.setBorder(NO_BORDER);
 
         JSpinner borderWidthSpinner = new JSpinner();
-        borderWidthSpinner.setModel(new SpinnerNumberModel(group.getBorderWidth(), 0, 50, 0.1));
+        borderWidthSpinner.setModel(new SpinnerNumberModel(group.getBorderWidth(), BORDER_WIDTH_MIN, BORDER_WIDTH_MAX, BORDER_WIDTH_STEP));
         JFormattedTextField txt = ((JSpinner.NumberEditor) borderWidthSpinner.getEditor()).getTextField();
         NumberFormatter formatter = (NumberFormatter) txt.getFormatter();
         formatter.setFormat(new DecimalFormat("0.0"));
         formatter.setAllowsInvalid(false);
+        styleSpinner(borderWidthSpinner);
 
         borderWidthSpinner.addChangeListener(action -> updateBorderWidth(borderWidthSpinner));
 
@@ -249,17 +266,18 @@ public class TileMarkerGroupPanel extends JPanel {
 
     private JPanel createFillOpacityPanel() {
         JPanel fillOpacityPanel = new JPanel(new GridLayout(1, 2));
-        fillOpacityPanel.setBorder(new EmptyBorder(1, 0, 0, 0));
-        fillOpacityPanel.setBackground(DARKER_GRAY_COLOR);
+        fillOpacityPanel.setBorder(new EmptyBorder(MINIMAL_PADDING, 0, 0, 0));
+        stylePanel(fillOpacityPanel);
 
-        JLabel fillOpacityLabel = new JLabel("Fill opacity");
-        fillOpacityLabel.setBorder(new EmptyBorder(0, 0, 0, 0));
-        fillOpacityLabel.setBackground(DARKER_GRAY_COLOR);
+        JLabel fillOpacityLabel = styledLabel("Fill opacity");
+        fillOpacityLabel.setBorder(NO_BORDER);
 
         JSpinner fillOpacitySpinner = new JSpinner();
-        fillOpacitySpinner.setModel(new SpinnerNumberModel(group.getFillOpacity(), 0, 255, 10));
+        fillOpacitySpinner.setModel(new SpinnerNumberModel(group.getFillOpacity(), FILL_OPACITY_MIN, FILL_OPACITY_MAX, FILL_OPACITY_STEP));
         JFormattedTextField txt = ((JSpinner.NumberEditor) fillOpacitySpinner.getEditor()).getTextField();
         ((NumberFormatter) txt.getFormatter()).setAllowsInvalid(false);
+        styleSpinner(fillOpacitySpinner);
+
         fillOpacitySpinner.addChangeListener(action -> updateFillOpacity(fillOpacitySpinner));
 
         fillOpacityPanel.add(fillOpacityLabel);
@@ -269,17 +287,18 @@ public class TileMarkerGroupPanel extends JPanel {
 
     private JPanel createTickCounterPanel() {
         JPanel tickCounterPanel = new JPanel(new GridLayout(1, 2));
-        tickCounterPanel.setBorder(new EmptyBorder(1, 0, 0, 0));
-        tickCounterPanel.setBackground(DARKER_GRAY_COLOR);
+        tickCounterPanel.setBorder(new EmptyBorder(MINIMAL_PADDING, 0, 0, 0));
+        stylePanel(tickCounterPanel);
 
-        JLabel tickCounterLabel = new JLabel("Tick counter");
-        tickCounterLabel.setBorder(new EmptyBorder(0, 0, 0, 0));
-        tickCounterLabel.setBackground(DARKER_GRAY_COLOR);
+        JLabel tickCounterLabel = styledLabel("Tick counter");
+        tickCounterLabel.setBorder(NO_BORDER);
 
         JSpinner tickCounterSpinner = new JSpinner();
-        tickCounterSpinner.setModel(new SpinnerNumberModel(group.getTickCounter(), 1, 100, 1));
+        tickCounterSpinner.setModel(new SpinnerNumberModel(group.getTickCounter(), TICK_COUNTER_MIN, TICK_COUNTER_MAX, TICK_COUNTER_STEP));
         JFormattedTextField txt = ((JSpinner.NumberEditor) tickCounterSpinner.getEditor()).getTextField();
         ((NumberFormatter) txt.getFormatter()).setAllowsInvalid(false);
+        styleSpinner(tickCounterSpinner);
+
         tickCounterSpinner.addChangeListener(action -> updateTickCounter(tickCounterSpinner));
 
         tickCounterPanel.add(tickCounterLabel);
@@ -289,27 +308,22 @@ public class TileMarkerGroupPanel extends JPanel {
 
     private JPanel createHotkeysPanel() {
         JPanel hotKeysPanel = new JPanel(new GridLayout(2, 1));
+        stylePanel(hotKeysPanel);
+        hotKeysPanel.setBorder(new EmptyBorder(MINIMAL_PADDING, 0, SMALL_PADDING, 0));
 
-        hotKeysPanel.setBackground(DARKER_GRAY_COLOR);
-        hotKeysPanel.setBorder(new EmptyBorder(1, 0, 5, 0));
-
-        JLabel hotkeysLabel = new JLabel("Hotkeys");
-        hotkeysLabel.setBorder(new EmptyBorder(0, 0, 0, 0));
-        hotkeysLabel.setBackground(DARKER_GRAY_COLOR);
-
+        JLabel hotkeysLabel = styledLabel("Hotkeys");
+        hotkeysLabel.setBorder(NO_BORDER);
 
         JPanel hotkeysListPanel = new JPanel(new GridLayout(0, 2));
-        hotkeysListPanel.setBackground(DARKER_GRAY_COLOR);
-        hotkeysListPanel.setBorder(new EmptyBorder(0, 0, 0, 0));
+        stylePanel(hotkeysListPanel);
+        hotkeysListPanel.setBorder(NO_BORDER);
 
-        JLabel tickResetLabel = new JLabel("Cycle reset");
-        tickResetLabel.setBorder(new EmptyBorder(0, 0, 0, 0));
-        tickResetLabel.setBackground(DARKER_GRAY_COLOR);
+        JLabel tickResetLabel = styledLabel("Cycle reset");
+        tickResetLabel.setBorder(NO_BORDER);
         HotkeyButton tickResetHotkeyButton = new HotkeyButton(group.getTickResetHotkey(), group::setTickResetHotkey, false);
 
-        JLabel visibilityLabel = new JLabel("Visibility");
-        visibilityLabel.setBorder(new EmptyBorder(0, 0, 0, 0));
-        visibilityLabel.setBackground(DARKER_GRAY_COLOR);
+        JLabel visibilityLabel = styledLabel("Visibility");
+        visibilityLabel.setBorder(NO_BORDER);
         HotkeyButton visibilityHotkeyButton = new HotkeyButton(group.getVisibilityHotkey(), group::setVisibilityHotkey, false);
 
         hotkeysListPanel.add(tickResetLabel);
@@ -324,15 +338,15 @@ public class TileMarkerGroupPanel extends JPanel {
 
     private JPanel createRenderTypePanel() {
         JPanel renderTypePanel = new JPanel(new GridLayout(1, 2));
-        renderTypePanel.setBorder(new EmptyBorder(1, 0, 0, 0));
-        renderTypePanel.setBackground(DARKER_GRAY_COLOR);
+        renderTypePanel.setBorder(new EmptyBorder(MINIMAL_PADDING, 0, 0, 0));
+        stylePanel(renderTypePanel);
 
-        JLabel renderTypeLabel = new JLabel("Animation");
-        renderTypeLabel.setBorder(new EmptyBorder(0, 0, 0, 0));
-        renderTypeLabel.setBackground(DARKER_GRAY_COLOR);
+        JLabel renderTypeLabel = styledLabel("Animation");
+        renderTypeLabel.setBorder(NO_BORDER);
 
         JComboBox<AnimationType> renderTypeDropdown = new JComboBox<>(AnimationType.values());
         renderTypeDropdown.setSelectedItem(group.getAnimationType());
+        styleComboBox(renderTypeDropdown);
         renderTypeDropdown.addActionListener(action -> updateRenderType(renderTypeDropdown));
 
         renderTypePanel.add(renderTypeLabel);
@@ -342,15 +356,11 @@ public class TileMarkerGroupPanel extends JPanel {
 
     private JPanel createVisibilityConfigPanel() {
         JPanel renderConfigPanel = new JPanel(new BorderLayout());
-        renderConfigPanel.setBorder(new EmptyBorder(8, 10, 0, 0));
-        renderConfigPanel.setBackground(DARKER_GRAY_COLOR);
+        renderConfigPanel.setBorder(new EmptyBorder(STANDARD_PADDING, STANDARD_PADDING, 0, 0));
+        stylePanel(renderConfigPanel);
 
         JButton setActiveButton = new JButton("Activate group");
-        setActiveButton.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(GRAY, 1),
-                BorderFactory.createEmptyBorder(0, 3, 1, 3)));
-        setActiveButton.setBackground(DARKER_GRAY_COLOR);
-
+        styleButton(setActiveButton);
         setActiveButton.setToolTipText("Marking tiles will add them to the active group.");
         configureMouseListener(
                 setActiveButton,
@@ -360,8 +370,7 @@ public class TileMarkerGroupPanel extends JPanel {
         );
 
         JLabel isVisibleIcon = new JLabel(group.isVisible() ? VISIBLE_ICON : INVISIBLE_ICON);
-        isVisibleIcon.setBorder(new EmptyBorder(0, 0, 0, 0));
-        isVisibleIcon.setBackground(DARKER_GRAY_COLOR);
+        isVisibleIcon.setBorder(NO_BORDER);
 
         configureMouseListener(
                 isVisibleIcon,
@@ -377,17 +386,17 @@ public class TileMarkerGroupPanel extends JPanel {
 
     private JPanel createColorConfigPanel() {
         JPanel colorConfigPanel = new JPanel(new GridLayout(0, 1));
-        colorConfigPanel.setBorder(new EmptyBorder(1, 0, 1, 0));
-        colorConfigPanel.setBackground(DARKER_GRAY_COLOR);
+        colorConfigPanel.setBorder(new EmptyBorder(MINIMAL_PADDING, 0, MINIMAL_PADDING, 0));
+        stylePanel(colorConfigPanel);
 
-        JLabel colorLabel = new JLabel("Tile colors");
-        colorLabel.setBorder(new EmptyBorder(0, 8, 0, 0));
+        JLabel colorLabel = styledLabel("Tile colors");
+        colorLabel.setBorder(LABEL_PADDING);
         colorConfigPanel.add(colorLabel, LEFT_ALIGNMENT);
 
         JPanel colorGridLayout = new JPanel();
-        colorGridLayout.setLayout(new FlowLayout(FlowLayout.LEFT, 1, 2));
-        colorGridLayout.setBorder(new EmptyBorder(0, 8, 0, 0));
-        colorGridLayout.setBackground(DARKER_GRAY_COLOR);
+        colorGridLayout.setLayout(new FlowLayout(FlowLayout.LEFT, MINIMAL_PADDING, MINIMAL_PADDING));
+        colorGridLayout.setBorder(LABEL_PADDING);
+        stylePanel(colorGridLayout);
         colorConfigPanel.add(colorGridLayout);
 
         group.getColors()
@@ -396,14 +405,14 @@ public class TileMarkerGroupPanel extends JPanel {
                 .forEach(colorIndicator -> colorGridLayout.add(colorIndicator, LEFT_ALIGNMENT));
         colorGridLayout.add(createAddColorPanel());
 
-        colorConfigPanel.setBorder(LABEL_BOTTOM_BORDER);
+        colorConfigPanel.setBorder(BOTTOM_BORDER);
         return colorConfigPanel;
     }
 
     private JPanel createColorIndicator(Color color) {
         ColorPanel colorPanel = new ColorPanel(color);
-        colorPanel.setBorder(new EmptyBorder(0, 0, 0, 0));
-        colorPanel.setBackground(DARKER_GRAY_COLOR);
+        colorPanel.setBorder(NO_BORDER);
+        stylePanel(colorPanel);
 
         colorPanel.setColor(color);
         colorPanel.setToolTipText("Click to edit tile color.\n Shift click to remove.");
@@ -424,12 +433,11 @@ public class TileMarkerGroupPanel extends JPanel {
 
     private JPanel createAddColorPanel() {
         JPanel addColorPanel = new JPanel(new FlowLayout(LEFT));
-        addColorPanel.setBorder(new EmptyBorder(0, 8, 0, 0));
-        addColorPanel.setBackground(DARKER_GRAY_COLOR);
+        addColorPanel.setBorder(LABEL_PADDING);
+        stylePanel(addColorPanel);
 
         JLabel addColorIcon = new JLabel(ADD_ICON);
-        addColorIcon.setBorder(new EmptyBorder(0, 0, 0, 0));
-        addColorIcon.setBackground(DARKER_GRAY_COLOR);
+        addColorIcon.setBorder(NO_BORDER);
         addColorIcon.setToolTipText("Add color");
 
         configureMouseListener(addColorIcon,

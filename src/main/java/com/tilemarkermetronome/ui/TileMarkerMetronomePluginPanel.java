@@ -1,7 +1,6 @@
 package com.tilemarkermetronome.ui;
 
 import com.tilemarkermetronome.TileMarkerMetronomePlugin;
-import net.runelite.client.ui.ColorScheme;
 import net.runelite.client.ui.PluginPanel;
 import net.runelite.client.ui.components.PluginErrorPanel;
 import net.runelite.client.util.ImageUtil;
@@ -10,15 +9,15 @@ import javax.swing.Box;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.border.EmptyBorder;
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.image.BufferedImage;
 
 import static com.tilemarkermetronome.ui.util.ComponentUtil.configureMouseListener;
+import static com.tilemarkermetronome.ui.util.UIConstants.*;
+import static com.tilemarkermetronome.ui.util.UIStyler.*;
 
 public class TileMarkerMetronomePluginPanel extends PluginPanel {
     private static final BufferedImage ADD_IMAGE = ImageUtil.loadImageResource(TileMarkerMetronomePlugin.class, "add_icon.png");
@@ -26,7 +25,7 @@ public class TileMarkerMetronomePluginPanel extends PluginPanel {
     private static final ImageIcon ADD_HOVER_ICON = new ImageIcon(ImageUtil.alphaOffset(ADD_IMAGE, -100));
 
     private final JLabel createGroup = new JLabel(ADD_ICON);
-    private final JLabel title = new JLabel();
+    private final JLabel title = styledLabel("Tile marker metronome groups");
     private final PluginErrorPanel noGroupsPanel = new PluginErrorPanel();
     private final JPanel groupsView = new JPanel(new GridBagLayout());
 
@@ -36,21 +35,18 @@ public class TileMarkerMetronomePluginPanel extends PluginPanel {
         this.plugin = tileMarkerMetronomePlugin;
 
         setLayout(new BorderLayout());
-        setBorder(new EmptyBorder(10, 10, 10, 10));
+        setBorder(PANEL_BORDER);
 
         JPanel northPanel = new JPanel(new BorderLayout());
-        northPanel.setBorder(new EmptyBorder(1, 0, 10, 0));
-
-        title.setText("Tile marker metronome groups");
-        title.setForeground(Color.WHITE);
-
+        northPanel.setBorder(new javax.swing.border.EmptyBorder(MINIMAL_PADDING, 0, SMALL_PADDING, 0));
+        stylePanel(northPanel);
         northPanel.add(title, BorderLayout.WEST);
         northPanel.add(createGroup, BorderLayout.EAST);
 
         JPanel centerPanel = new JPanel(new BorderLayout());
-        centerPanel.setBackground(ColorScheme.DARK_GRAY_COLOR);
+        stylePanel(centerPanel);
 
-        groupsView.setBackground(ColorScheme.DARK_GRAY_COLOR);
+        stylePanel(groupsView);
 
         GridBagConstraints constraints = new GridBagConstraints();
         constraints.fill = GridBagConstraints.HORIZONTAL;
@@ -90,7 +86,7 @@ public class TileMarkerMetronomePluginPanel extends PluginPanel {
                 .forEach(group -> {
                             groupsView.add(new TileMarkerGroupPanel(plugin, group), constraints);
                             constraints.gridy++;
-                            groupsView.add(Box.createRigidArea(new Dimension(0, 10)), constraints);
+                            groupsView.add(Box.createRigidArea(new Dimension(0, SPACING_BETWEEN_GROUPS)), constraints);
                             constraints.gridy++;
                         }
                 );
