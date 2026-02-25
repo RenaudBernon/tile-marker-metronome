@@ -48,7 +48,6 @@ import java.util.stream.Collectors;
 
 import static com.tilemarkermetronome.TileMarkerMetronomeGroup.AnimationType.DISABLED;
 
-
 @PluginDescriptor(name = "Tile Marker Metronome")
 public class TileMarkerMetronomePlugin extends Plugin implements KeyListener {
     private static final String CONFIG_GROUP = "tileMarkerMetronome";
@@ -205,6 +204,47 @@ public class TileMarkerMetronomePlugin extends Plugin implements KeyListener {
 
     public List<TileMarkerMetronomeGroup> getGroups() {
         return tileMarkerMetronomeGroups;
+    }
+
+    public String exportGroup(TileMarkerMetronomeGroup group) {
+        TileMarkerGroupExport export = TileMarkerGroupExport.fromGroup(group);
+        return gson.toJson(export);
+    }
+
+    public String exportAllGroups() {
+        List<TileMarkerGroupExport> exports = tileMarkerMetronomeGroups.stream()
+                .map(TileMarkerGroupExport::fromGroup)
+                .collect(Collectors.toList());
+        return gson.toJson(exports);
+    }
+
+    public void importGroups(String json) {
+        try {
+            try {
+                List<TileMarkerGroupExport> exports = gson.fromJson(json, new TypeToken<List<TileMarkerGroupExport>>() {
+                }.getType());
+                if (exports != null && !exports.isEmpty()) {
+                    exports.forEach(this::importGroup);
+                    return;
+                }
+            } catch (Exception e) {
+                // Not an array, try single group
+            }
+
+            TileMarkerGroupExport export = gson.fromJson(json, TileMarkerGroupExport.class);
+            importGroup(export);
+            saveGroupsAndRebuild();
+        } catch (Exception e) {
+            System.err.println("Failed to import group: " + e.getMessage());
+        }
+    }
+
+    private void importGroup(TileMarkerGroupExport export) {
+        if (export != null) {
+            TileMarkerMetronomeGroup importedGroup = export.toGroup();
+            importedGroup.setInactive();
+            tileMarkerMetronomeGroups.add(importedGroup);
+        }
     }
 
     public void saveGroupsAndRebuild() {

@@ -31,3 +31,7 @@ This will color each tile in the next configured colors, moving over one color e
 <img width="225" height="314" alt="train-config" src="https://github.com/user-attachments/assets/cb09c6da-d135-41f7-8845-3e45241ec86e" />
 
 [![Watch train demo](https://github.com/user-attachments/assets/cb09c6da-d135-41f7-8845-3e45241ec86e)](https://github.com/user-attachments/assets/974ec017-f34f-4a26-a0bd-b225206abe0a)
+
+# Roadmap
+
+- Add animation type that does not loop colors. e.g. 4 marked tiles with 3 configured colors only marks three tiles per tick

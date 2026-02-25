@@ -30,6 +30,7 @@ public class TileMarkerMetronomeGroup {
     private Keybind visibilityHotkey;
     private boolean collapsed;
 
+    //used for creating new groups from UI or from memory
     public TileMarkerMetronomeGroup(String label, TileMarkerMetronomeConfig config, boolean isVisible, boolean isActive) {
         this.label = label;
         this.colors = new ArrayList<>(List.of(config.color1(), config.color2()));
@@ -42,6 +43,19 @@ public class TileMarkerMetronomeGroup {
         this.tickResetHotkey = Keybind.NOT_SET;
         this.visibilityHotkey = Keybind.NOT_SET;
         this.collapsed = false;
+    }
+
+    //used for importing groups
+    public TileMarkerMetronomeGroup(String label, List<Color> colors, AnimationType animationType, int fillOpacity, double borderWidth, int tickCounter, Keybind tickResetHotkey, Keybind visibilityHotkey, List<TileMarkerMetronomePoint> tileMarkerMetronomePoints) {
+        this.label = label;
+        this.colors = new ArrayList<>(colors);
+        this.animationType = animationType;
+        this.fillOpacity = fillOpacity;
+        this.borderWidth = borderWidth;
+        this.tickCounter = tickCounter;
+        this.tickResetHotkey = tickResetHotkey;
+        this.visibilityHotkey = visibilityHotkey;
+        this.tileMarkerMetronomePoints.addAll(tileMarkerMetronomePoints);
     }
 
     public void setActive() {

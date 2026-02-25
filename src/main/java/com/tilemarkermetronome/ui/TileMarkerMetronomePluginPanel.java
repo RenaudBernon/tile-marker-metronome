@@ -7,10 +7,13 @@ import net.runelite.client.util.ImageUtil;
 
 import javax.swing.Box;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.image.BufferedImage;
@@ -40,8 +43,29 @@ public class TileMarkerMetronomePluginPanel extends PluginPanel {
         JPanel northPanel = new JPanel(new BorderLayout());
         northPanel.setBorder(new javax.swing.border.EmptyBorder(MINIMAL_PADDING, 0, SMALL_PADDING, 0));
         stylePanel(northPanel);
+
         northPanel.add(title, BorderLayout.WEST);
-        northPanel.add(createGroup, BorderLayout.EAST);
+
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, MINIMAL_PADDING, 0));
+        stylePanel(buttonPanel);
+
+        JButton importButton = new JButton("Import");
+        JButton exportButton = new JButton("Export All");
+
+        styleButton(importButton);
+        styleButton(exportButton);
+
+        importButton.setToolTipText("Import groups");
+        exportButton.setToolTipText("Export all groups");
+
+        importButton.addActionListener(e -> showImportDialog());
+        exportButton.addActionListener(e -> showExportDialog());
+
+        buttonPanel.add(exportButton);
+        buttonPanel.add(importButton);
+        buttonPanel.add(createGroup);
+
+        northPanel.add(buttonPanel, BorderLayout.EAST);
 
         JPanel centerPanel = new JPanel(new BorderLayout());
         stylePanel(centerPanel);
@@ -71,6 +95,30 @@ public class TileMarkerMetronomePluginPanel extends PluginPanel {
 
         add(northPanel, BorderLayout.NORTH);
         add(centerPanel, BorderLayout.CENTER);
+    }
+
+    private void showImportDialog() {
+        String json = JOptionPane.showInputDialog(this,
+                "Paste group(s) import:",
+                "Import Group(s)",
+                JOptionPane.PLAIN_MESSAGE);
+
+        if (json != null && !json.trim().isEmpty()) {
+            try {
+                plugin.importGroups(json);
+                JOptionPane.showMessageDialog(this, "Group(s) imported successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this, "Failed to import group(s): " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
+
+    private void showExportDialog() {
+        String json = plugin.exportAllGroups();
+        JOptionPane.showMessageDialog(this,
+                json,
+                "Export All Groups",
+                JOptionPane.PLAIN_MESSAGE);
     }
 
     public void rebuild() {

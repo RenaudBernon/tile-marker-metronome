@@ -98,6 +98,7 @@ public class TileMarkerGroupPanel extends JPanel {
     private final JLabel renameLabel = new JLabel(EDIT_ICON);
     private final JLabel deleteLabel = new JLabel(DELETE_ICON);
     private final JLabel visibilityLabel = new JLabel(">");
+    private final JLabel exportLabel = new JLabel("Export");
 
     private final FlatTextField labelInput = new FlatTextField();
 
@@ -201,9 +202,20 @@ public class TileMarkerGroupPanel extends JPanel {
                 }
         );
 
+        exportLabel.setFont(getRunescapeFont());
+        exportLabel.setForeground(SECONDARY_FOREGROUND);
+        exportLabel.setToolTipText("Export group");
+        configureMouseListener(
+                exportLabel,
+                ignored -> exportGroup(),
+                ignored -> exportLabel.setForeground(SECONDARY_FOREGROUND.brighter()),
+                ignored -> exportLabel.setForeground(SECONDARY_FOREGROUND)
+        );
+
         labelActions.add(saveLabel);
         labelActions.add(cancelLabel);
         labelActions.add(renameLabel);
+        labelActions.add(exportLabel);
         labelActions.add(deleteLabel);
         labelActions.add(visibilityLabel);
         labelActionsContainer.add(labelActions);
@@ -563,5 +575,13 @@ public class TileMarkerGroupPanel extends JPanel {
     private void updateBorderWidth(JSpinner borderWidth) {
         group.setBorderWidth((double) borderWidth.getValue());
         plugin.saveGroupsAndRebuild();
+    }
+
+    private void exportGroup() {
+        String json = plugin.exportGroup(group);
+        JOptionPane.showMessageDialog(this,
+                json,
+                "Export Group: " + group.getLabel(),
+                JOptionPane.PLAIN_MESSAGE);
     }
 }
