@@ -8,7 +8,6 @@ import net.runelite.client.util.ImageUtil;
 import javax.swing.Box;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -21,9 +20,12 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.image.BufferedImage;
 
-import static com.tilemarkermetronome.ui.util.ComponentUtil.configureMouseListener;
-import static com.tilemarkermetronome.ui.util.UIConstants.*;
-import static com.tilemarkermetronome.ui.util.UIStyler.*;
+import static com.tilemarkermetronome.ui.util.UIConstants.MINIMAL_PADDING;
+import static com.tilemarkermetronome.ui.util.UIConstants.PANEL_BORDER;
+import static com.tilemarkermetronome.ui.util.UIConstants.SMALL_PADDING;
+import static com.tilemarkermetronome.ui.util.UIConstants.SPACING_BETWEEN_GROUPS;
+import static com.tilemarkermetronome.ui.util.UIStyler.styleButton;
+import static com.tilemarkermetronome.ui.util.UIStyler.stylePanel;
 
 public class TileMarkerMetronomePluginPanel extends PluginPanel {
     private static final BufferedImage EXPORT_IMAGE = ImageUtil.loadImageResource(TileMarkerMetronomePlugin.class, "export_icon.png");
