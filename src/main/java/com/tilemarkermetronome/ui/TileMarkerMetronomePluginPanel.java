@@ -11,6 +11,8 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.border.EmptyBorder;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -24,6 +26,9 @@ import static com.tilemarkermetronome.ui.util.UIConstants.*;
 import static com.tilemarkermetronome.ui.util.UIStyler.*;
 
 public class TileMarkerMetronomePluginPanel extends PluginPanel {
+    private static final BufferedImage EXPORT_IMAGE = ImageUtil.loadImageResource(TileMarkerMetronomePlugin.class, "export_icon.png");
+    private static final ImageIcon EXPORT_ICON = new ImageIcon(EXPORT_IMAGE);
+    private static final ImageIcon EXPORT_HOVER_ICON = new ImageIcon(ImageUtil.alphaOffset(EXPORT_IMAGE, -100));
     private final PluginErrorPanel noGroupsPanel = new PluginErrorPanel();
     private final JPanel groupsView = new JPanel(new GridBagLayout());
     private final TileMarkerMetronomePlugin plugin;
@@ -43,7 +48,7 @@ public class TileMarkerMetronomePluginPanel extends PluginPanel {
 
         JButton createButton = new JButton("Add group");
         JButton importButton = new JButton("Import");
-        JButton exportButton = new JButton("Export All");
+        JButton exportButton = new JButton(EXPORT_ICON);
 
         styleButton(createButton);
         styleButton(importButton);
@@ -52,6 +57,8 @@ public class TileMarkerMetronomePluginPanel extends PluginPanel {
         createButton.setToolTipText("Create new group");
         importButton.setToolTipText("Import groups");
         exportButton.setToolTipText("Export all groups");
+        exportButton.setRolloverIcon(EXPORT_HOVER_ICON);
+        exportButton.setPressedIcon(EXPORT_HOVER_ICON);
 
         createButton.addActionListener(e -> plugin.addGroup());
         importButton.addActionListener(e -> showImportDialog());
@@ -87,17 +94,28 @@ public class TileMarkerMetronomePluginPanel extends PluginPanel {
     }
 
     private void showImportDialog() {
-        String json = JOptionPane.showInputDialog(this,
-                "Paste group(s) import:",
+        JTextArea inputArea = new JTextArea(10, 40);
+        inputArea.setLineWrap(true);
+        inputArea.setWrapStyleWord(true);
+
+        JScrollPane scrollPane = new JScrollPane(inputArea);
+
+        int result = JOptionPane.showConfirmDialog(
+                this,
+                scrollPane,
                 "Import Group(s)",
+                JOptionPane.OK_CANCEL_OPTION,
                 JOptionPane.PLAIN_MESSAGE);
 
-        if (json != null && !json.trim().isEmpty()) {
-            try {
-                plugin.importGroups(json);
-                JOptionPane.showMessageDialog(this, "Group(s) imported successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, "Failed to import group(s): " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        if (result == JOptionPane.OK_OPTION) {
+            String json = inputArea.getText();
+            if (json != null && !json.trim().isEmpty()) {
+                try {
+                    plugin.importGroups(json);
+                    JOptionPane.showMessageDialog(this, "Group(s) imported successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(this, "Failed to import group(s): " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                }
             }
         }
     }

@@ -28,6 +28,8 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
+import java.awt.Toolkit;
+import java.awt.datatransfer.StringSelection;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
@@ -93,12 +95,16 @@ public class TileMarkerGroupPanel extends JPanel {
     private static final ImageIcon INVISIBLE_ICON = new ImageIcon(INVISIBLE_IMAGE);
     private static final ImageIcon INVISIBLE_HOVER_ICON = new ImageIcon(ImageUtil.alphaOffset(INVISIBLE_IMAGE, -100));
 
+    private static final BufferedImage EXPORT_IMAGE = ImageUtil.loadImageResource(TileMarkerMetronomePlugin.class, "export_icon.png");
+    private static final ImageIcon EXPORT_ICON = new ImageIcon(EXPORT_IMAGE);
+    private static final ImageIcon EXPORT_HOVER_ICON = new ImageIcon(ImageUtil.alphaOffset(EXPORT_IMAGE, -100));
+
     private final JLabel saveLabel = new JLabel("Save");
     private final JLabel cancelLabel = new JLabel("Cancel");
     private final JLabel renameLabel = new JLabel(EDIT_ICON);
     private final JLabel deleteLabel = new JLabel(DELETE_ICON);
-    private final JLabel visibilityLabel = new JLabel(">");
-    private final JLabel exportLabel = new JLabel("Export");
+    private final JLabel visibilityLabel = new JLabel("> ");
+    private final JLabel exportLabel = new JLabel(EXPORT_ICON);
 
     private final FlatTextField labelInput = new FlatTextField();
 
@@ -208,8 +214,8 @@ public class TileMarkerGroupPanel extends JPanel {
         configureMouseListener(
                 exportLabel,
                 ignored -> exportGroup(),
-                ignored -> exportLabel.setForeground(SECONDARY_FOREGROUND.brighter()),
-                ignored -> exportLabel.setForeground(SECONDARY_FOREGROUND)
+                ignored -> exportLabel.setIcon(EXPORT_HOVER_ICON),
+                ignored -> exportLabel.setIcon(EXPORT_ICON)
         );
 
         labelActions.add(saveLabel);
@@ -579,8 +585,11 @@ public class TileMarkerGroupPanel extends JPanel {
 
     private void exportGroup() {
         String json = plugin.exportGroup(group);
+        Toolkit.getDefaultToolkit()
+                .getSystemClipboard()
+                .setContents(new StringSelection(json), null);
         JOptionPane.showMessageDialog(this,
-                json,
+                "Exported to clipboard.",
                 "Export Group: " + group.getLabel(),
                 JOptionPane.PLAIN_MESSAGE);
     }
